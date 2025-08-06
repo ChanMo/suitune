@@ -1,0 +1,16 @@
+{% extends "sui/base.html" %}
+
+{% block content %}
+<button id="play" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-8 rounded-full text-xl">随便播</button>
+<script>
+const btn = document.getElementById('play');
+btn.addEventListener('click', () => {
+    fetch('/api/next')
+        .then(resp => resp.json())
+        .then(data => {
+            const audio = new Audio(data.stream_url);
+            audio.play();
+        });
+});
+</script>
+{% endblock %}
