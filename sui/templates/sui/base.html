@@ -2,10 +2,1014 @@
 <html lang="zh-cn">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}SuiTune{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    {% block extra_css %}{% endblock %}
+    <style>
+        /* Hide scrollbar but keep scrolling functionality */
+        .scrollbar-hide {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;  /* Chrome, Safari and Opera */
+        }
+    </style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center">
-    {% block content %}{% endblock %}
+<body class="bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white min-h-screen">
+    <!-- Navigation Bar -->
+    <nav class="bg-black/20 backdrop-blur-lg border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
+            <!-- Mobile Navigation -->
+            <div class="block md:hidden">
+                <!-- Top Row: Brand and Menu -->
+                <div class="flex justify-between items-center h-14 px-2">
+                    <a href="/" class="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                        SuiTune
+                    </a>
+                    <div class="flex items-center space-x-2">
+                        <a href="/favorites/" class="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-all duration-200">
+                            <i class="fas fa-heart text-pink-400 text-sm"></i>
+                        </a>
+                        <a href="/admin/" class="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-all duration-200">
+                            <i class="fas fa-cog text-gray-300 text-sm"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Bottom Row: Channel Switcher -->
+                <div class="flex items-center justify-center pb-2 px-2">
+                    <div class="flex items-center space-x-1 overflow-x-auto scrollbar-hide" id="nav-channel-switcher-mobile">
+                        <button class="nav-channel-btn flex-shrink-0 w-10 h-10 rounded-full text-xs font-medium bg-purple-500/30 text-purple-200 border border-purple-400/30 backdrop-blur-sm hover:bg-purple-500/40 transition-all duration-200 flex items-center justify-center" data-channel="music" title="音乐">
+                            <i class="fas fa-music"></i>
+                        </button>
+                        <button class="nav-channel-btn flex-shrink-0 w-10 h-10 rounded-full text-xs font-medium bg-white/5 text-gray-300 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-all duration-200 flex items-center justify-center" data-channel="talk" title="相声">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                        <button class="nav-channel-btn flex-shrink-0 w-10 h-10 rounded-full text-xs font-medium bg-white/5 text-gray-300 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-all duration-200 flex items-center justify-center" data-channel="tv" title="TV音频">
+                            <i class="fas fa-tv"></i>
+                        </button>
+                        <button class="nav-channel-btn flex-shrink-0 w-10 h-10 rounded-full text-xs font-medium bg-white/5 text-gray-300 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-all duration-200 flex items-center justify-center" data-channel="ambient" title="环境音">
+                            <i class="fas fa-leaf"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4">
+                    <a href="/" class="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                        SuiTune
+                    </a>
+                    {% if request.resolver_match.url_name == 'favorites' %}
+                        <span class="text-gray-400">•</span>
+                        <span class="text-lg text-gray-300">我的收藏</span>
+                    {% endif %}
+                </div>
+                
+                <!-- Desktop Channel Switcher -->
+                <div class="flex items-center space-x-1" id="nav-channel-switcher">
+                    <button class="nav-channel-btn px-4 py-2 rounded-full text-sm font-medium bg-purple-500/30 text-purple-200 border border-purple-400/30 backdrop-blur-sm hover:bg-purple-500/40 transition-all duration-200" data-channel="music">
+                        <i class="fas fa-music mr-2"></i>音乐
+                    </button>
+                    <button class="nav-channel-btn px-4 py-2 rounded-full text-sm font-medium bg-white/5 text-gray-300 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-all duration-200" data-channel="talk">
+                        <i class="fas fa-microphone mr-2"></i>相声
+                    </button>
+                    <button class="nav-channel-btn px-4 py-2 rounded-full text-sm font-medium bg-white/5 text-gray-300 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-all duration-200" data-channel="tv">
+                        <i class="fas fa-tv mr-2"></i>TV音频
+                    </button>
+                    <button class="nav-channel-btn px-4 py-2 rounded-full text-sm font-medium bg-white/5 text-gray-300 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-all duration-200" data-channel="ambient">
+                        <i class="fas fa-leaf mr-2"></i>环境音
+                    </button>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <a href="/favorites/" class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full transition-all duration-200">
+                        <i class="fas fa-heart mr-2"></i>我的收藏
+                    </a>
+                    <a href="/admin/" class="text-gray-300 hover:text-white transition-colors">
+                        <i class="fas fa-cog"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main id="spa-content" class="container mx-auto px-4 py-8 pb-32">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Global Music Player -->
+    <div id="global-player" class="hidden fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur-xl border-t border-white/10 shadow-2xl z-50">
+        <!-- Collapsed Player -->
+        <div id="player-collapsed" class="flex items-center justify-between p-3 sm:p-4">
+            <!-- Track Info -->
+            <div class="flex items-center space-x-3 flex-grow min-w-0">
+                <div id="player-album-cover" class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                    <i class="fas fa-music text-white text-sm"></i>
+                </div>
+                <div class="min-w-0 flex-grow">
+                    <h4 id="player-title" class="text-white font-medium truncate text-sm sm:text-base">选择音乐开始播放</h4>
+                    <p id="player-artist" class="text-gray-400 text-xs sm:text-sm truncate">SuiTune</p>
+                </div>
+            </div>
+            
+            <!-- Controls -->
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <!-- Mobile: Hide favorite and expand buttons to save space -->
+                <button id="player-favorite-btn" class="hidden sm:flex w-8 h-8 bg-pink-500/20 hover:bg-pink-500/30 rounded-full items-center justify-center transition-all duration-200">
+                    <i class="far fa-heart text-pink-400 text-sm"></i>
+                </button>
+                <button id="player-play-pause" class="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-full flex items-center justify-center transition-all duration-200">
+                    <i class="fas fa-play text-white text-sm ml-0.5"></i>
+                </button>
+                <button id="player-next" class="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-all duration-200">
+                    <i class="fas fa-step-forward text-white text-sm"></i>
+                </button>
+                <button id="player-expand" class="hidden sm:flex w-8 h-8 bg-white/10 hover:bg-white/20 rounded-full items-center justify-center transition-all duration-200">
+                    <i class="fas fa-chevron-up text-white text-sm"></i>
+                </button>
+                
+                <!-- Mobile: Tap anywhere on player to expand -->
+                <button id="player-mobile-expand" class="flex sm:hidden w-8 h-8 bg-white/10 hover:bg-white/20 rounded-full items-center justify-center transition-all duration-200">
+                    <i class="fas fa-ellipsis-h text-white text-sm"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Expanded Player -->
+        <div id="player-expanded" class="hidden p-4 sm:p-6 space-y-4">
+            <!-- Progress Bar -->
+            <div class="space-y-2">
+                <div class="flex justify-between text-xs text-gray-400">
+                    <span id="player-current-time">0:00</span>
+                    <span id="player-duration">-:--</span>
+                </div>
+                <div class="bg-white/10 rounded-full h-2 cursor-pointer" id="player-progress-container">
+                    <div id="player-progress-bar" class="bg-gradient-to-r from-purple-400 to-pink-400 h-2 rounded-full w-0 transition-all duration-300"></div>
+                </div>
+            </div>
+            
+            <!-- Extended Controls -->
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <span class="text-sm text-gray-400" id="player-channel-display">音乐频道</span>
+                    <!-- Mobile: Show favorite button in expanded view -->
+                    <button id="player-favorite-btn-mobile" class="flex sm:hidden w-8 h-8 bg-pink-500/20 hover:bg-pink-500/30 rounded-full items-center justify-center transition-all duration-200">
+                        <i class="far fa-heart text-pink-400 text-sm"></i>
+                    </button>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button id="player-ban-btn" class="w-8 h-8 bg-red-500/20 hover:bg-red-500/30 rounded-full flex items-center justify-center transition-all duration-200">
+                        <i class="fas fa-ban text-red-400 text-sm"></i>
+                    </button>
+                    <button id="player-collapse" class="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-all duration-200">
+                        <i class="fas fa-chevron-down text-white text-sm"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Audio Element -->
+    <audio id="global-audio" preload="metadata"></audio>
+
+    <!-- Global Music Manager Script -->
+    <script>
+    // Global Music Manager Class
+    class GlobalMusicManager {
+        constructor() {
+            this.currentTrack = null;
+            this.isPlaying = false;
+            this.currentChannel = 'music';
+            this.audio = document.getElementById('global-audio');
+            this.playerContainer = document.getElementById('global-player');
+            this.expandedView = document.getElementById('player-expanded');
+            this.collapsedView = document.getElementById('player-collapsed');
+            
+            this.initializeElements();
+            this.setupEventListeners();
+            this.setupMediaSessionHandlers();
+            this.loadState();
+        }
+        
+        initializeElements() {
+            // Player elements
+            this.titleEl = document.getElementById('player-title');
+            this.artistEl = document.getElementById('player-artist');
+            this.albumCoverEl = document.getElementById('player-album-cover');
+            this.playPauseBtn = document.getElementById('player-play-pause');
+            this.favoriteBtn = document.getElementById('player-favorite-btn');
+            this.favoriteBtnMobile = document.getElementById('player-favorite-btn-mobile');
+            this.nextBtn = document.getElementById('player-next');
+            this.banBtn = document.getElementById('player-ban-btn');
+            this.expandBtn = document.getElementById('player-expand');
+            this.mobileExpandBtn = document.getElementById('player-mobile-expand');
+            this.collapseBtn = document.getElementById('player-collapse');
+            this.progressBar = document.getElementById('player-progress-bar');
+            this.progressContainer = document.getElementById('player-progress-container');
+            this.currentTimeEl = document.getElementById('player-current-time');
+            this.durationEl = document.getElementById('player-duration');
+            this.channelDisplayEl = document.getElementById('player-channel-display');
+        }
+        
+        setupEventListeners() {
+            // Audio events
+            this.audio.addEventListener('play', () => this.onPlay());
+            this.audio.addEventListener('pause', () => this.onPause());
+            this.audio.addEventListener('timeupdate', () => this.onTimeUpdate());
+            this.audio.addEventListener('loadedmetadata', () => this.onLoadedMetadata());
+            this.audio.addEventListener('ended', () => this.onEnded());
+            
+            // Control events
+            this.playPauseBtn.addEventListener('click', () => this.togglePlayPause());
+            this.nextBtn.addEventListener('click', () => this.playNext());
+            if (this.favoriteBtn) this.favoriteBtn.addEventListener('click', () => this.toggleFavorite());
+            if (this.favoriteBtnMobile) this.favoriteBtnMobile.addEventListener('click', () => this.toggleFavorite());
+            this.banBtn.addEventListener('click', () => this.banTrack());
+            if (this.expandBtn) this.expandBtn.addEventListener('click', () => this.expandPlayer());
+            if (this.mobileExpandBtn) this.mobileExpandBtn.addEventListener('click', () => this.expandPlayer());
+            this.collapseBtn.addEventListener('click', () => this.collapsePlayer());
+            this.progressContainer.addEventListener('click', (e) => this.seekTo(e));
+            
+            // Storage events for cross-page synchronization
+            window.addEventListener('storage', (e) => this.onStorageChange(e));
+            
+            // Page visibility change
+            document.addEventListener('visibilitychange', () => this.onVisibilityChange());
+            
+            // Save state before page unload
+            window.addEventListener('beforeunload', () => this.saveState());
+            
+            // Save state when page becomes hidden
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    this.saveState();
+                }
+            });
+        }
+        
+        // State management
+        saveState() {
+            const state = {
+                currentTrack: this.currentTrack,
+                isPlaying: this.isPlaying,
+                currentChannel: this.currentChannel,
+                currentTime: this.audio.currentTime,
+                timestamp: Date.now()
+            };
+            localStorage.setItem('suitune_player_state', JSON.stringify(state));
+        }
+        
+        loadState() {
+            try {
+                const saved = localStorage.getItem('suitune_player_state');
+                if (saved) {
+                    const state = JSON.parse(saved);
+                    // Only restore if state is recent (within 1 hour)
+                    if (Date.now() - state.timestamp < 3600000) {
+                        this.currentTrack = state.currentTrack;
+                        this.currentChannel = state.currentChannel;
+                        const wasPlaying = state.isPlaying;
+                        
+                        if (this.currentTrack) {
+                            this.loadTrack(this.currentTrack, false).then(() => {
+                                // Restore playback position
+                                if (state.currentTime) {
+                                    this.audio.currentTime = state.currentTime;
+                                }
+                                
+                                // Resume playback if it was playing before
+                                if (wasPlaying && !this.isPlaying) {
+                                    // Wait for audio to be ready and restore position
+                                    const resumePlayback = () => {
+                                        if (state.currentTime) {
+                                            this.audio.currentTime = state.currentTime;
+                                        }
+                                        this.audio.play().catch(e => {
+                                            console.log('Auto-resume prevented by browser:', e);
+                                        });
+                                    };
+                                    
+                                    if (this.audio.readyState >= 2) {
+                                        resumePlayback();
+                                    } else {
+                                        this.audio.addEventListener('loadeddata', resumePlayback, { once: true });
+                                    }
+                                }
+                                
+                                // Notify all pages that state has been restored
+                                this.broadcastStateChange();
+                            });
+                            this.showPlayer();
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading player state:', error);
+            }
+        }
+        
+        onStorageChange(e) {
+            if (e.key === 'suitune_player_state' && e.newValue) {
+                try {
+                    const state = JSON.parse(e.newValue);
+                    if (state.currentTrack && state.currentTrack.id !== this.currentTrack?.id) {
+                        this.loadTrack(state.currentTrack, state.isPlaying);
+                    }
+                } catch (error) {
+                    console.error('Error syncing player state:', error);
+                }
+            }
+        }
+        
+        onVisibilityChange() {
+            if (!document.hidden) {
+                this.loadState();
+            }
+        }
+        
+        // Player controls
+        async loadTrack(track, autoPlay = false) {
+            this.currentTrack = track;
+            this.titleEl.textContent = track.title || '未知音乐';
+            this.artistEl.textContent = track.artist || '未知艺术家';
+            this.updateFavoriteButton(track.liked || false);
+            this.updateChannelDisplay();
+            this.updateAlbumCover(track);
+            
+            this.audio.src = track.stream_url;
+            this.audio.load();
+            
+            this.showPlayer();
+            
+            return new Promise((resolve) => {
+                if (autoPlay) {
+                    // Wait for audio to be ready before playing
+                    const playWhenReady = () => {
+                        this.audio.play().then(() => {
+                            this.saveState();
+                            resolve();
+                        }).catch(error => {
+                            console.log('Auto-play prevented:', error);
+                            this.saveState();
+                            resolve();
+                        });
+                        this.audio.removeEventListener('canplay', playWhenReady);
+                    };
+                    
+                    if (this.audio.readyState >= 3) {
+                        playWhenReady();
+                    } else {
+                        this.audio.addEventListener('canplay', playWhenReady, { once: true });
+                    }
+                } else {
+                    // Just wait for the audio to load
+                    const loadWhenReady = () => {
+                        this.saveState();
+                        resolve();
+                        this.audio.removeEventListener('loadedmetadata', loadWhenReady);
+                    };
+                    
+                    if (this.audio.readyState >= 1) {
+                        loadWhenReady();
+                    } else {
+                        this.audio.addEventListener('loadedmetadata', loadWhenReady, { once: true });
+                    }
+                }
+                
+                // Broadcast state change after load completes
+                this.broadcastStateChange();
+            });
+        }
+        
+        async togglePlayPause() {
+            if (!this.currentTrack) {
+                await this.loadNext();
+                return;
+            }
+            
+            if (this.isPlaying) {
+                this.audio.pause();
+            } else {
+                this.audio.play();
+            }
+        }
+        
+        async loadNext() {
+            try {
+                const response = await fetch(`/api/next?channel=${this.currentChannel}`);
+                const data = await response.json();
+                
+                if (data.detail) {
+                    throw new Error(data.detail);
+                }
+                
+                await this.loadTrack(data, true);
+            } catch (error) {
+                console.error('Error loading next track:', error);
+            }
+        }
+        
+        async playNext() {
+            await this.loadNext();
+        }
+        
+        async toggleFavorite() {
+            if (!this.currentTrack) return;
+            
+            try {
+                // Get CSRF token from cookie
+                const csrfToken = this.getCSRFTokenFromCookie();
+                
+                const response = await fetch('/api/feedback', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify({
+                        track_id: this.currentTrack.id,
+                        action: this.currentTrack.liked ? 'unlike' : 'like'
+                    })
+                });
+                
+                if (response.ok) {
+                    this.currentTrack.liked = !this.currentTrack.liked;
+                    this.updateFavoriteButton(this.currentTrack.liked);
+                    this.saveState();
+                }
+            } catch (error) {
+                console.error('Error toggling favorite:', error);
+            }
+        }
+        
+        async banTrack() {
+            if (!this.currentTrack) return;
+            
+            if (confirm('确定要屏蔽这首音乐吗？')) {
+                try {
+                    const csrfToken = this.getCSRFTokenFromCookie();
+                    
+                    const response = await fetch('/api/feedback', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrfToken
+                        },
+                        body: JSON.stringify({
+                            track_id: this.currentTrack.id,
+                            action: 'ban'
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        await this.loadNext();
+                    }
+                } catch (error) {
+                    console.error('Error banning track:', error);
+                }
+            }
+        }
+        
+        // UI updates
+        updatePlayPauseButton(playing) {
+            const icon = this.playPauseBtn.querySelector('i');
+            if (playing) {
+                icon.className = 'fas fa-pause text-white text-sm';
+            } else {
+                icon.className = 'fas fa-play text-white text-sm ml-0.5';
+            }
+        }
+        
+        updateFavoriteButton(liked) {
+            // Update desktop favorite button
+            if (this.favoriteBtn) {
+                const icon = this.favoriteBtn.querySelector('i');
+                if (liked) {
+                    icon.className = 'fas fa-heart text-pink-400 text-sm';
+                    this.favoriteBtn.classList.remove('bg-pink-500/20');
+                    this.favoriteBtn.classList.add('bg-pink-500/40');
+                } else {
+                    icon.className = 'far fa-heart text-pink-400 text-sm';
+                    this.favoriteBtn.classList.remove('bg-pink-500/40');
+                    this.favoriteBtn.classList.add('bg-pink-500/20');
+                }
+            }
+            
+            // Update mobile favorite button
+            if (this.favoriteBtnMobile) {
+                const iconMobile = this.favoriteBtnMobile.querySelector('i');
+                if (liked) {
+                    iconMobile.className = 'fas fa-heart text-pink-400 text-sm';
+                    this.favoriteBtnMobile.classList.remove('bg-pink-500/20');
+                    this.favoriteBtnMobile.classList.add('bg-pink-500/40');
+                } else {
+                    iconMobile.className = 'far fa-heart text-pink-400 text-sm';
+                    this.favoriteBtnMobile.classList.remove('bg-pink-500/40');
+                    this.favoriteBtnMobile.classList.add('bg-pink-500/20');
+                }
+            }
+        }
+        
+        updateChannelDisplay() {
+            const channelNames = {
+                'music': '音乐频道',
+                'talk': '相声频道',
+                'tv': 'TV音频频道',
+                'ambient': '环境音频道'
+            };
+            this.channelDisplayEl.textContent = channelNames[this.currentChannel] || '音乐频道';
+        }
+        
+        updateAlbumCover(track) {
+            if (track && track.artwork_url) {
+                // 如果有专辑封面，显示图片
+                this.albumCoverEl.innerHTML = `
+                    <img src="${track.artwork_url}" 
+                         alt="${track.album || '专辑封面'}" 
+                         class="w-full h-full object-cover rounded-lg"
+                         onerror="this.parentElement.innerHTML='<i class=\\'fas fa-music text-white\\'></i>'"
+                    />
+                `;
+            } else {
+                // 没有封面时显示默认图标
+                this.albumCoverEl.innerHTML = '<i class="fas fa-music text-white"></i>';
+            }
+        }
+        
+        showPlayer() {
+            this.playerContainer.classList.remove('hidden');
+        }
+        
+        hidePlayer() {
+            this.playerContainer.classList.add('hidden');
+        }
+        
+        expandPlayer() {
+            this.collapsedView.classList.add('hidden');
+            this.expandedView.classList.remove('hidden');
+        }
+        
+        collapsePlayer() {
+            this.expandedView.classList.add('hidden');
+            this.collapsedView.classList.remove('hidden');
+        }
+        
+        seekTo(e) {
+            if (!this.audio.duration) return;
+            
+            const rect = this.progressContainer.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const width = rect.width;
+            const clickTime = (clickX / width) * this.audio.duration;
+            
+            this.audio.currentTime = clickTime;
+        }
+        
+        formatTime(seconds) {
+            if (!seconds || isNaN(seconds)) return '0:00';
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+            return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+        
+        // Audio event handlers
+        onPlay() {
+            this.isPlaying = true;
+            this.updatePlayPauseButton(true);
+            this.updateMediaSession();
+            this.saveState();
+            this.broadcastStateChange();
+        }
+        
+        onPause() {
+            this.isPlaying = false;
+            this.updatePlayPauseButton(false);
+            this.updateMediaSession();
+            this.saveState();
+            this.broadcastStateChange();
+        }
+        
+        onTimeUpdate() {
+            if (this.audio.duration) {
+                const progress = (this.audio.currentTime / this.audio.duration) * 100;
+                this.progressBar.style.width = `${progress}%`;
+                this.currentTimeEl.textContent = this.formatTime(this.audio.currentTime);
+            }
+            this.saveState();
+        }
+        
+        onLoadedMetadata() {
+            this.durationEl.textContent = this.formatTime(this.audio.duration || 0);
+        }
+        
+        async onEnded() {
+            await this.loadNext();
+        }
+        
+        // Public API for pages to interact with player
+        setChannel(channel) {
+            this.currentChannel = channel;
+            this.updateChannelDisplay();
+            this.saveState();
+            this.broadcastStateChange();
+        }
+        
+        async playTrack(track) {
+            await this.loadTrack(track, true);
+        }
+        
+        getCurrentTrack() {
+            return this.currentTrack;
+        }
+        
+        getIsPlaying() {
+            return this.isPlaying;
+        }
+        
+        // Broadcast state changes to all components
+        broadcastStateChange() {
+            // Dispatch custom event for state changes
+            window.dispatchEvent(new CustomEvent('globalPlayerStateChanged', {
+                detail: {
+                    currentTrack: this.currentTrack,
+                    isPlaying: this.isPlaying,
+                    currentChannel: this.currentChannel
+                }
+            }));
+        }
+        
+        // Get CSRF token from cookie
+        getCSRFTokenFromCookie() {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                const [name, value] = cookie.trim().split('=');
+                if (name === 'csrftoken') {
+                    return decodeURIComponent(value);
+                }
+            }
+            return '';
+        }
+        
+        // Media Session API Integration
+        updateMediaSession() {
+            if (!('mediaSession' in navigator)) return;
+            
+            if (this.currentTrack) {
+                // 准备封面图片数组
+                let artwork = [];
+                if (this.currentTrack.artwork_url) {
+                    // 使用专辑封面
+                    artwork = [
+                        { src: this.currentTrack.artwork_url, sizes: '512x512', type: 'image/jpeg' }
+                    ];
+                } else {
+                    // 使用默认图标（如果存在）
+                    artwork = [
+                        { src: '/static/suitune/icon-96.png', sizes: '96x96', type: 'image/png' },
+                        { src: '/static/suitune/icon-128.png', sizes: '128x128', type: 'image/png' },
+                        { src: '/static/suitune/icon-192.png', sizes: '192x192', type: 'image/png' },
+                        { src: '/static/suitune/icon-256.png', sizes: '256x256', type: 'image/png' },
+                        { src: '/static/suitune/icon-512.png', sizes: '512x512', type: 'image/png' }
+                    ];
+                }
+                
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: this.currentTrack.title || '未知音乐',
+                    artist: this.currentTrack.artist || '未知艺术家',
+                    album: this.currentTrack.album || '未知专辑',
+                    artwork: artwork
+                });
+                
+                // Set playback state
+                navigator.mediaSession.playbackState = this.isPlaying ? 'playing' : 'paused';
+                
+                // Set position state
+                if (this.audio.duration && !isNaN(this.audio.duration)) {
+                    navigator.mediaSession.setPositionState({
+                        duration: this.audio.duration,
+                        playbackRate: this.audio.playbackRate,
+                        position: this.audio.currentTime
+                    });
+                }
+            }
+        }
+        
+        setupMediaSessionHandlers() {
+            if (!('mediaSession' in navigator)) return;
+            
+            // Play action
+            navigator.mediaSession.setActionHandler('play', () => {
+                this.audio.play();
+            });
+            
+            // Pause action
+            navigator.mediaSession.setActionHandler('pause', () => {
+                this.audio.pause();
+            });
+            
+            // Previous track action
+            navigator.mediaSession.setActionHandler('previoustrack', () => {
+                // For now, just restart current track
+                this.audio.currentTime = 0;
+            });
+            
+            // Next track action
+            navigator.mediaSession.setActionHandler('nexttrack', () => {
+                this.loadNext();
+            });
+            
+            // Seek action
+            navigator.mediaSession.setActionHandler('seekto', (details) => {
+                if (details.seekTime && this.audio.duration) {
+                    this.audio.currentTime = details.seekTime;
+                }
+            });
+            
+            // Seek forward action
+            navigator.mediaSession.setActionHandler('seekforward', (details) => {
+                const skipTime = details.seekOffset || 10;
+                this.audio.currentTime = Math.min(this.audio.currentTime + skipTime, this.audio.duration);
+            });
+            
+            // Seek backward action
+            navigator.mediaSession.setActionHandler('seekbackward', (details) => {
+                const skipTime = details.seekOffset || 10;
+                this.audio.currentTime = Math.max(this.audio.currentTime - skipTime, 0);
+            });
+        }
+    }
+    
+    // Initialize global music manager
+    window.globalMusicManager = new GlobalMusicManager();
+    
+    // Utility function for CSRF token
+    function getCSRFToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
+               document.querySelector('meta[name=csrf-token]')?.content || 
+               '{{ csrf_token }}';
+    }
+    
+    // Setup navigation channel switching
+    document.addEventListener('DOMContentLoaded', function() {
+        const channelBtns = document.querySelectorAll('.nav-channel-btn');
+        
+        function updateChannelButtons(activeChannel) {
+            channelBtns.forEach(btn => {
+                const channel = btn.dataset.channel;
+                if (channel === activeChannel) {
+                    btn.classList.remove('bg-white/5', 'text-gray-300', 'border-white/10');
+                    btn.classList.add('bg-purple-500/30', 'text-purple-200', 'border-purple-400/30');
+                } else {
+                    btn.classList.remove('bg-purple-500/30', 'text-purple-200', 'border-purple-400/30');
+                    btn.classList.add('bg-white/5', 'text-gray-300', 'border-white/10');
+                }
+            });
+        }
+        
+        // Setup channel button clicks
+        channelBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const channel = btn.dataset.channel;
+                globalMusicManager.setChannel(channel);
+                updateChannelButtons(channel);
+                
+                // Dispatch custom event for pages to listen to
+                window.dispatchEvent(new CustomEvent('channelChanged', { 
+                    detail: { channel: channel }
+                }));
+            });
+        });
+        
+        // Initialize channel buttons
+        setTimeout(() => {
+            updateChannelButtons(globalMusicManager.currentChannel);
+        }, 100);
+    });
+    
+    // SPA Router System
+    class SPARouter {
+        constructor() {
+            this.routes = new Map();
+            this.currentPath = '';
+            this.contentContainer = document.querySelector('main') || document.getElementById('spa-content');
+            this.isLoading = false;
+            
+            this.setupRoutes();
+            this.setupEventListeners();
+            this.handleInitialLoad();
+        }
+        
+        setupRoutes() {
+            // 定义路由映射
+            this.routes.set('/', '/api/page/home');
+            this.routes.set('/favorites/', '/api/page/favorites');
+            this.routes.set('/favorites', '/api/page/favorites');
+        }
+        
+        setupEventListeners() {
+            // 拦截所有链接点击
+            document.addEventListener('click', this.handleLinkClick.bind(this));
+            
+            // 监听浏览器前进后退
+            window.addEventListener('popstate', this.handlePopState.bind(this));
+        }
+        
+        handleLinkClick(e) {
+            const link = e.target.closest('a');
+            if (!link) return;
+            
+            const href = link.getAttribute('href');
+            
+            // 只处理内部链接
+            if (this.isInternalLink(href)) {
+                e.preventDefault();
+                this.navigateTo(href);
+            }
+        }
+        
+        isInternalLink(href) {
+            if (!href || href.startsWith('#') || href.startsWith('http') || href.startsWith('mailto:')) {
+                return false;
+            }
+            return true;
+        }
+        
+        async navigateTo(path) {
+            if (this.isLoading || path === this.currentPath) return;
+            
+            this.isLoading = true;
+            this.showLoadingState();
+            
+            try {
+                // 获取页面内容
+                const content = await this.fetchPageContent(path);
+                
+                // 更新URL（不刷新页面）
+                if (path !== window.location.pathname) {
+                    history.pushState({ path }, '', path);
+                }
+                
+                // 更新页面内容
+                await this.updatePageContent(content);
+                
+                // 更新当前路径
+                this.currentPath = path;
+                
+                // 更新导航状态
+                this.updateNavigationState(path);
+                
+            } catch (error) {
+                console.error('Navigation error:', error);
+                this.showErrorState(error);
+            } finally {
+                this.isLoading = false;
+                this.hideLoadingState();
+            }
+        }
+        
+        async fetchPageContent(path) {
+            const apiPath = this.routes.get(path) || `/api/page${path}`;
+            
+            const response = await fetch(apiPath, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            return await response.json();
+        }
+        
+        async updatePageContent(content) {
+            return new Promise((resolve) => {
+                // 淡出动画
+                this.contentContainer.style.opacity = '0';
+                this.contentContainer.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    // 更新内容
+                    this.contentContainer.innerHTML = content.html;
+                    
+                    // 更新页面标题
+                    if (content.title) {
+                        document.title = content.title;
+                    }
+                    
+                    // 执行页面特定的初始化脚本
+                    if (content.script) {
+                        this.executePageScript(content.script);
+                    }
+                    
+                    // 通知app.js页面已更新
+                    window.dispatchEvent(new CustomEvent('spaPageChanged', {
+                        detail: { path: this.currentPath, content: content }
+                    }));
+                    
+                    // 淡入动画
+                    this.contentContainer.style.opacity = '1';
+                    this.contentContainer.style.transform = 'translateY(0)';
+                    
+                    resolve();
+                }, 150); // 动画时间
+            });
+        }
+        
+        executePageScript(script) {
+            try {
+                // 安全执行页面脚本
+                const scriptElement = document.createElement('script');
+                scriptElement.textContent = script;
+                document.head.appendChild(scriptElement);
+                document.head.removeChild(scriptElement);
+            } catch (error) {
+                console.error('Script execution error:', error);
+            }
+        }
+        
+        handlePopState(e) {
+            const path = e.state?.path || window.location.pathname;
+            this.navigateTo(path);
+        }
+        
+        handleInitialLoad() {
+            this.currentPath = window.location.pathname;
+            
+            // 设置初始历史状态
+            history.replaceState({ path: this.currentPath }, '', this.currentPath);
+        }
+        
+        updateNavigationState(path) {
+            // 更新面包屑导航
+            const breadcrumb = document.querySelector('.breadcrumb');
+            if (breadcrumb) {
+                const pathName = this.getPageName(path);
+                breadcrumb.textContent = pathName;
+            }
+            
+            // 更新活跃链接状态
+            document.querySelectorAll('a').forEach(link => {
+                const href = link.getAttribute('href');
+                if (href === path) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        }
+        
+        getPageName(path) {
+            const names = {
+                '/': '首页',
+                '/favorites/': '我的收藏',
+                '/favorites': '我的收藏'
+            };
+            return names[path] || '页面';
+        }
+        
+        showLoadingState() {
+            this.contentContainer.style.transition = 'opacity 0.15s ease, transform 0.15s ease';
+        }
+        
+        hideLoadingState() {
+            // 加载完成后移除过渡，避免影响正常交互
+            setTimeout(() => {
+                this.contentContainer.style.transition = '';
+            }, 300);
+        }
+        
+        showErrorState(error) {
+            this.contentContainer.innerHTML = `
+                <div class="flex flex-col items-center justify-center min-h-[60vh] text-center">
+                    <div class="bg-red-500/20 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-red-500/20 max-w-md">
+                        <i class="fas fa-exclamation-triangle text-6xl text-red-400 mb-6"></i>
+                        <h3 class="text-2xl font-bold text-white mb-4">页面加载失败</h3>
+                        <p class="text-gray-300 mb-6">${error.message}</p>
+                        <button onclick="window.location.reload()" 
+                                class="px-6 py-3 bg-red-500 hover:bg-red-600 rounded-full text-white font-medium transition-all duration-200">
+                            重新加载
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+    }
+    
+    // 初始化SPA路由器
+    document.addEventListener('DOMContentLoaded', function() {
+        window.spaRouter = new SPARouter();
+    });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
 </body>
 </html>
