@@ -1,0 +1,296 @@
+{% extends "sui/base.html" %}
+{% load static %}
+
+{% block title %}个人资料 - SuiTune{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/animations.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-8">
+    <!-- 个人资料卡片 -->
+    <div class="music-card backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/10">
+        <div class="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-8">
+            <!-- 头像区域 -->
+            <div class="relative">
+                <div class="w-32 h-32 rounded-3xl bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 flex items-center justify-center shadow-2xl transform hover:scale-105 transition-all duration-500 relative overflow-hidden glow-effect">
+                    <i class="fas fa-user text-5xl text-white/90"></i>
+                    <!-- 旋转光环效果 -->
+                    <div class="absolute inset-0 rounded-3xl border-2 border-white/20 animate-spin" style="animation-duration: 20s;"></div>
+                </div>
+                <!-- 状态指示器 -->
+                <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-gray-800 flex items-center justify-center">
+                    <i class="fas fa-music text-xs text-white"></i>
+                </div>
+            </div>
+            
+            <!-- 基本信息 -->
+            <div class="flex-1 text-center md:text-left">
+                <h1 class="text-3xl font-bold mb-2 text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text">
+                    {{ user.username }}
+                </h1>
+                <p class="text-gray-300 text-lg mb-4">SuiTune 音乐爱好者</p>
+                <div class="flex flex-wrap justify-center md:justify-start gap-4 text-sm text-gray-400">
+                    <div class="flex items-center">
+                        <i class="fas fa-calendar-alt text-blue-400 mr-2"></i>
+                        <span>加入时间：{{ user.date_joined|date:"Y年m月d日" }}</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-clock text-purple-400 mr-2"></i>
+                        <span>上次活跃：{{ user.last_login|date:"Y-m-d H:i" }}</span>
+                    </div>
+                    {% if user.email %}
+                    <div class="flex items-center">
+                        <i class="fas fa-envelope text-pink-400 mr-2"></i>
+                        <span>{{ user.email }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- 操作按钮 -->
+            <div class="flex flex-col space-y-3">
+                <a href="{% url 'account_logout' %}" class="px-6 py-2 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-medium rounded-2xl transition-all duration-300 transform hover:scale-105 text-center">
+                    <i class="fas fa-sign-out-alt mr-2"></i>登出
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 统计卡片网格 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- 收藏音乐统计 -->
+        <div class="music-card backdrop-blur-xl rounded-3xl p-6 shadow-2xl border border-white/10 text-center">
+            <div class="w-16 h-16 bg-gradient-to-br from-pink-400 to-red-400 rounded-2xl mx-auto mb-4 flex items-center justify-center">
+                <i class="fas fa-heart text-2xl text-white"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-white mb-1" id="favorites-count">-</h3>
+            <p class="text-gray-400 text-sm">收藏音乐</p>
+        </div>
+        
+        <!-- 总播放时长 -->
+        <div class="music-card backdrop-blur-xl rounded-3xl p-6 shadow-2xl border border-white/10 text-center">
+            <div class="w-16 h-16 bg-gradient-to-br from-blue-400 to-indigo-400 rounded-2xl mx-auto mb-4 flex items-center justify-center">
+                <i class="fas fa-play text-2xl text-white"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-white mb-1" id="total-playtime">-</h3>
+            <p class="text-gray-400 text-sm">播放时长</p>
+        </div>
+        
+        <!-- 偏好频道 -->
+        <div class="music-card backdrop-blur-xl rounded-3xl p-6 shadow-2xl border border-white/10 text-center">
+            <div class="w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-400 rounded-2xl mx-auto mb-4 flex items-center justify-center">
+                <i class="fas fa-music text-2xl text-white"></i>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-1" id="favorite-channel">音乐</h3>
+            <p class="text-gray-400 text-sm">偏好频道</p>
+        </div>
+        
+        <!-- 在线状态 -->
+        <div class="music-card backdrop-blur-xl rounded-3xl p-6 shadow-2xl border border-white/10 text-center">
+            <div class="w-16 h-16 bg-gradient-to-br from-green-400 to-emerald-400 rounded-2xl mx-auto mb-4 flex items-center justify-center">
+                <i class="fas fa-circle text-2xl text-white"></i>
+            </div>
+            <h3 class="text-lg font-bold text-green-400 mb-1">在线</h3>
+            <p class="text-gray-400 text-sm">当前状态</p>
+        </div>
+    </div>
+    
+    <!-- 偏好设置卡片 -->
+    <div class="music-card backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/10">
+        <h2 class="text-2xl font-bold mb-6 text-transparent bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text">
+            <i class="fas fa-sliders-h mr-3 text-purple-400"></i>播放偏好
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- 频道偏好 -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold text-white mb-4">频道偏好</h3>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between p-4 bg-white/5 rounded-2xl">
+                        <div class="flex items-center">
+                            <i class="fas fa-music text-purple-400 mr-3"></i>
+                            <span class="text-white">音乐</span>
+                        </div>
+                        <div class="text-purple-400 font-semibold">90%</div>
+                    </div>
+                    <div class="flex items-center justify-between p-4 bg-white/5 rounded-2xl">
+                        <div class="flex items-center">
+                            <i class="fas fa-microphone text-orange-400 mr-3"></i>
+                            <span class="text-white">相声</span>
+                        </div>
+                        <div class="text-gray-400 font-semibold">5%</div>
+                    </div>
+                    <div class="flex items-center justify-between p-4 bg-white/5 rounded-2xl">
+                        <div class="flex items-center">
+                            <i class="fas fa-tv text-blue-400 mr-3"></i>
+                            <span class="text-white">TV音频</span>
+                        </div>
+                        <div class="text-gray-400 font-semibold">3%</div>
+                    </div>
+                    <div class="flex items-center justify-between p-4 bg-white/5 rounded-2xl">
+                        <div class="flex items-center">
+                            <i class="fas fa-leaf text-green-400 mr-3"></i>
+                            <span class="text-white">环境音</span>
+                        </div>
+                        <div class="text-gray-400 font-semibold">2%</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 播放习惯 -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold text-white mb-4">播放习惯</h3>
+                <div class="space-y-3">
+                    <div class="p-4 bg-white/5 rounded-2xl">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-gray-300">平均会话时长</span>
+                            <span class="text-blue-400 font-semibold">45分钟</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-gradient-to-r from-blue-400 to-purple-400 h-2 rounded-full" style="width: 75%"></div>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-white/5 rounded-2xl">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-gray-300">收藏率</span>
+                            <span class="text-pink-400 font-semibold">23%</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-gradient-to-r from-pink-400 to-red-400 h-2 rounded-full" style="width: 23%"></div>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-white/5 rounded-2xl">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-gray-300">跳过率</span>
+                            <span class="text-orange-400 font-semibold">12%</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-gradient-to-r from-orange-400 to-red-400 h-2 rounded-full" style="width: 12%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 最近活动卡片 -->
+    <div class="music-card backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/10">
+        <h2 class="text-2xl font-bold mb-6 text-transparent bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text">
+            <i class="fas fa-history mr-3 text-purple-400"></i>最近活动
+        </h2>
+        
+        <div class="space-y-4" id="recent-activities">
+            <!-- 活动项目将由JavaScript动态加载 -->
+            <div class="flex items-center justify-center py-8">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-400"></div>
+                <span class="ml-3 text-gray-400">加载中...</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 加载统计数据
+    loadProfileStats();
+    
+    // 加载最近活动
+    loadRecentActivities();
+    
+    async function loadProfileStats() {
+        try {
+            // 加载收藏数量
+            const favoritesResponse = await fetch('/api/favorites');
+            if (favoritesResponse.ok) {
+                const favoritesData = await favoritesResponse.json();
+                document.getElementById('favorites-count').textContent = favoritesData.count || 0;
+            }
+        } catch (error) {
+            console.error('Error loading profile stats:', error);
+            document.getElementById('favorites-count').textContent = '0';
+        }
+    }
+    
+    function loadRecentActivities() {
+        // 模拟最近活动数据（实际项目中应该从API获取）
+        const activities = [
+            {
+                type: 'favorite',
+                action: '收藏了音乐',
+                track: '《夜的钢琴曲五》',
+                time: '2分钟前',
+                icon: 'fas fa-heart',
+                color: 'text-pink-400'
+            },
+            {
+                type: 'play',
+                action: '播放了音乐',
+                track: '《River Flows In You》',
+                time: '15分钟前',
+                icon: 'fas fa-play',
+                color: 'text-blue-400'
+            },
+            {
+                type: 'skip',
+                action: '跳过了音乐',
+                track: '《Untitled》',
+                time: '23分钟前',
+                icon: 'fas fa-step-forward',
+                color: 'text-orange-400'
+            },
+            {
+                type: 'channel',
+                action: '切换到相声频道',
+                track: '',
+                time: '1小时前',
+                icon: 'fas fa-microphone',
+                color: 'text-purple-400'
+            },
+            {
+                type: 'login',
+                action: '登录到电台',
+                track: '',
+                time: '2小时前',
+                icon: 'fas fa-sign-in-alt',
+                color: 'text-green-400'
+            }
+        ];
+        
+        const container = document.getElementById('recent-activities');
+        container.innerHTML = '';
+        
+        activities.forEach(activity => {
+            const activityHtml = `
+                <div class="flex items-center space-x-4 p-4 bg-white/5 rounded-2xl hover:bg-white/10 transition-all duration-200">
+                    <div class="w-10 h-10 bg-gradient-to-br from-gray-600 to-gray-700 rounded-xl flex items-center justify-center">
+                        <i class="${activity.icon} ${activity.color}"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-white font-medium">
+                            ${activity.action}${activity.track ? ` ${activity.track}` : ''}
+                        </p>
+                        <p class="text-gray-400 text-sm">${activity.time}</p>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', activityHtml);
+        });
+    }
+    
+    // 添加入场动画
+    const cards = document.querySelectorAll('.music-card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(30px)';
+        
+        setTimeout(() => {
+            card.style.transition = 'all 0.6s cubic-bezier(0.22, 1, 0.36, 1)';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+</script>
+{% endblock %}

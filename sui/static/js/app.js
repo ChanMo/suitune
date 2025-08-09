@@ -17,6 +17,11 @@ class SuiTuneApp {
         }
     }
 
+    // 更新globalMusicManager引用的方法
+    updateGlobalMusicManager() {
+        this.globalMusicManager = window.globalMusicManager;
+    }
+
     initialize() {
         console.log('SuiTune App initializing...', this.currentPage);
         
@@ -134,7 +139,10 @@ class SuiTuneApp {
     async handlePlayToggle(e) {
         if (e) e.preventDefault();
         
-        if (!this.globalMusicManager) return;
+        if (!this.globalMusicManager) {
+            console.error('GlobalMusicManager not available');
+            return;
+        }
 
         try {
             const currentTrack = this.globalMusicManager.getCurrentTrack();
@@ -609,5 +617,15 @@ class SuiTuneApp {
     }
 }
 
-// 初始化应用
-const suiTuneApp = new SuiTuneApp();
+// 初始化应用 - 等待globalMusicManager就绪
+function initializeSuiTuneApp() {
+    if (window.globalMusicManager && !window.suiTuneApp) {
+        window.suiTuneApp = new SuiTuneApp();
+    } else if (!window.globalMusicManager) {
+        // 如果globalMusicManager还没初始化，等待一下再尝试
+        setTimeout(initializeSuiTuneApp, 50);
+    }
+}
+
+// 开始初始化
+initializeSuiTuneApp();

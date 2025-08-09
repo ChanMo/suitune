@@ -4,16 +4,97 @@
 {% block title %}{% trans "登录" %}{% endblock %}
 
 {% block content %}
-<div class="flex items-center justify-center min-h-[60vh]">
-  <div class="w-full max-w-xs">
-    <form method="post" action="{% url 'account_login' %}" class="bg-gray-800 shadow-md rounded px-8 pt-6 pb-8 mb-4">
-      {% csrf_token %}
-      {{ form.as_p }}
-      <button type="submit"
-              class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full">
-        {% trans "登录" %}
-      </button>
-    </form>
+<div class="flex items-center justify-center min-h-[60vh] px-4">
+  <div class="w-full max-w-md">
+    <div class="bg-gray-800 shadow-2xl rounded-lg px-8 pt-8 pb-8 mb-4 border border-gray-700">
+      <!-- 头部标题 -->
+      <div class="text-center mb-8">
+        <h2 class="text-3xl font-bold text-white mb-2">SuiTune</h2>
+        <p class="text-gray-400">欢迎回到你的音乐电台</p>
+      </div>
+      
+      <!-- 错误提示 -->
+      {% if form.non_field_errors %}
+        <div class="mb-4 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+          {% for error in form.non_field_errors %}
+            <p class="text-red-400 text-sm">{{ error }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+      
+      <!-- 登录表单 -->
+      <form method="post" action="{% url 'account_login' %}">
+        {% csrf_token %}
+        
+        <!-- 用户名输入框 -->
+        <div class="mb-6">
+          <label for="{{ form.login.id_for_label }}" class="block text-gray-300 text-sm font-semibold mb-2">
+            用户名
+          </label>
+          <input type="{{ form.login.field.widget.input_type }}" 
+                 name="{{ form.login.name }}" 
+                 id="{{ form.login.id_for_label }}"
+                 value="{% if form.login.value %}{{ form.login.value }}{% endif %}"
+                 class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                 placeholder="请输入用户名"
+                 required>
+          {% if form.login.errors %}
+            {% for error in form.login.errors %}
+              <p class="text-red-400 text-xs mt-1">{{ error }}</p>
+            {% endfor %}
+          {% endif %}
+        </div>
+        
+        <!-- 密码输入框 -->
+        <div class="mb-6">
+          <label for="{{ form.password.id_for_label }}" class="block text-gray-300 text-sm font-semibold mb-2">
+            密码
+          </label>
+          <input type="password" 
+                 name="{{ form.password.name }}" 
+                 id="{{ form.password.id_for_label }}"
+                 class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                 placeholder="请输入密码"
+                 required>
+          {% if form.password.errors %}
+            {% for error in form.password.errors %}
+              <p class="text-red-400 text-xs mt-1">{{ error }}</p>
+            {% endfor %}
+          {% endif %}
+        </div>
+        
+        <!-- 记住我 -->
+        {% if form.remember %}
+        <div class="mb-6">
+          <label class="flex items-center">
+            <input type="checkbox" 
+                   name="{{ form.remember.name }}" 
+                   id="{{ form.remember.id_for_label }}"
+                   class="rounded bg-gray-700 border-gray-600 text-blue-600 focus:ring-blue-500 focus:ring-2">
+            <span class="ml-2 text-gray-300 text-sm">记住我</span>
+          </label>
+        </div>
+        {% endif %}
+        
+        <!-- 登录按钮 -->
+        <button type="submit"
+                class="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800">
+          <span class="flex items-center justify-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+            </svg>
+            登录
+          </span>
+        </button>
+      </form>
+      
+      <!-- 底部信息 -->
+      <div class="text-center mt-8">
+        <p class="text-gray-500 text-sm">
+          需要帮助？请联系管理员
+        </p>
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}

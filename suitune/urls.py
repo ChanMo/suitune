@@ -2,11 +2,13 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, Http404
 from django.views.static import serve
 import os
-from sui.views import home, favorites, spa_page_api
+from sui.views import welcome, home, favorites, profile, spa_page_api
 
+@login_required
 def stream_audio(request, file_path):
     """开发环境下的音频文件流媒体服务"""
     full_path = '/' + file_path  # 重建完整路径
@@ -15,8 +17,10 @@ def stream_audio(request, file_path):
     return serve(request, file_path, document_root='/')
 
 urlpatterns = [
-    path('', home, name='home'),
+    path('', welcome, name='welcome'),
+    path('home/', home, name='home'),
     path('favorites/', favorites, name='favorites'),
+    path('profile/', profile, name='profile'),
     path('admin/', admin.site.urls),
     path('api/', include('sui.urls')),
     path('api/page/<str:page>', spa_page_api, name='spa-page-api'),
