@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="zh-cn">
 <head>
@@ -16,35 +17,178 @@
         .scrollbar-hide::-webkit-scrollbar {
             display: none;  /* Chrome, Safari and Opera */
         }
+        
+        /* Enhanced navigation styles */
+        .nav-item {
+            position: relative;
+            overflow: visible;
+        }
+        
+        /* Tooltip animations */
+        .nav-item:hover .tooltip {
+            opacity: 1;
+            transform: translateY(0);
+            visibility: visible;
+        }
+        
+        .tooltip {
+            position: absolute;
+            bottom: -2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+            z-index: 1000;
+        }
+        
+        /* Smooth bounce animation for buttons */
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0.3) rotate(-10deg);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.05) rotate(0deg);
+                opacity: 1;
+            }
+            70% {
+                transform: scale(0.9) rotate(0deg);
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+        
+        /* Pulse animation for notification badge */
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .notification-badge {
+            animation: pulse 2s infinite;
+        }
+        
+        /* Dropdown menu animations */
+        .dropdown-menu {
+            transform: translateY(-10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .dropdown-menu.show {
+            transform: translateY(0);
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Glass morphism effect for nav elements */
+        .glass {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .glass:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Enhance hover states with micro-interactions */
+        .nav-button {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+            border-radius: 50%;
+        }
+        
+        .nav-button:hover::before {
+            width: 200px;
+            height: 200px;
+        }
+        
+        /* Mobile touch feedback */
+        @media (hover: none) {
+            .nav-button:active {
+                transform: scale(0.95);
+                transition: transform 0.1s ease;
+            }
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 text-white min-h-screen">
     <!-- Navigation Bar -->
     <nav class="bg-black/20 backdrop-blur-lg border-b border-white/10">
         <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
-            <!-- Mobile Navigation -->
+            {% if user.is_authenticated %}
+            <!-- Mobile Navigation - Authenticated -->
             <div class="block md:hidden">
                 <!-- Top Row: Brand and Menu -->
                 <div class="flex justify-between items-center h-14 px-2">
-                    <a href="/" class="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                    <a href="/home/" class="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                         SuiTune
                     </a>
                     <div class="flex items-center space-x-2">
-                    <a href="/favorites/" class="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-all duration-200">
-                        <i class="fas fa-heart text-pink-400 text-sm"></i>
-                    </a>
-                    <a href="/admin/" class="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-all duration-200">
-                        <i class="fas fa-cog text-gray-300 text-sm"></i>
-                    </a>
-                    {% if user.is_authenticated %}
-                    <a href="{% url 'account_logout' %}" class="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-all duration-200">
-                        <i class="fas fa-right-from-bracket text-gray-300 text-sm"></i>
-                    </a>
-                    {% else %}
-                    <a href="{% url 'account_login' %}" class="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-all duration-200">
-                        <i class="fas fa-user text-gray-300 text-sm"></i>
-                    </a>
-                    {% endif %}
+                        <!-- 收藏按钮 - 移动版 -->
+                        <a href="/favorites/" class="relative w-9 h-9 bg-gradient-to-br from-pink-500/20 to-rose-500/20 hover:from-pink-500/40 hover:to-rose-500/40 border border-pink-400/30 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-pink-500/30">
+                            <i class="fas fa-heart text-pink-400 text-sm"></i>
+                            <!-- 悬浮标签 -->
+                            <span class="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-black/90 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 pointer-events-none transition-opacity duration-200">
+                                收藏
+                            </span>
+                        </a>
+                        
+                        <!-- 用户资料按钮 - 移动版 -->
+                        <div class="relative group">
+                            <a href="/profile/" class="w-9 h-9 bg-gradient-to-br from-blue-500/20 to-purple-500/20 hover:from-blue-500/40 hover:to-purple-500/40 border border-blue-400/30 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/30">
+                                <div class="w-6 h-6 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-xs">
+                                    {{ user.username|first|upper }}
+                                </div>
+                            </a>
+                        </div>
+                        
+                        <!-- 更多选项按钮 -->
+                        <div class="relative group">
+                            <button class="nav-button w-9 h-9 glass hover:scale-110 rounded-full flex items-center justify-center transition-all duration-300">
+                                <i class="fas fa-ellipsis-v text-gray-400 text-sm relative z-10"></i>
+                            </button>
+                            <!-- 下拉菜单 -->
+                            <div class="absolute right-0 top-full mt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-99">
+                                <div class="bg-black/95 backdrop-blur-xl rounded-xl border border-white/10 shadow-2xl min-w-[160px] py-2">
+                                    <a href="/settings/" class="flex items-center space-x-3 px-4 py-3 hover:bg-white/10 transition-colors duration-200">
+                                        <i class="fas fa-cog text-gray-400 w-4"></i>
+                                        <span class="text-white text-sm">设置</span>
+                                    </a>
+                                    <a href="{% url 'account_logout' %}" class="flex items-center space-x-3 px-4 py-3 hover:bg-red-500/20 transition-colors duration-200 text-red-400">
+                                        <i class="fas fa-right-from-bracket w-4"></i>
+                                        <span class="text-sm">登出</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -67,15 +211,18 @@
                 </div>
             </div>
             
-            <!-- Desktop Navigation -->
+            <!-- Desktop Navigation - Authenticated -->
             <div class="hidden md:flex justify-between items-center h-16">
                 <div class="flex items-center space-x-4">
-                    <a href="/" class="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                    <a href="/home/" class="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                         SuiTune
                     </a>
                     {% if request.resolver_match.url_name == 'favorites' %}
                         <span class="text-gray-400">•</span>
                         <span class="text-lg text-gray-300">我的收藏</span>
+                    {% elif request.resolver_match.url_name == 'profile' %}
+                        <span class="text-gray-400">•</span>
+                        <span class="text-lg text-gray-300">个人资料</span>
                     {% endif %}
                 </div>
                 
@@ -95,33 +242,87 @@
                     </button>
                 </div>
                 
-                <div class="flex items-center space-x-4">
-                    <a href="/favorites/" class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full transition-all duration-200">
-                        <i class="fas fa-heart mr-2"></i>我的收藏
+                <div class="flex items-center space-x-3">
+                    <!-- 收藏按钮 -->
+                    <a href="/favorites/" class="group relative flex items-center space-x-2 bg-gradient-to-r from-pink-500/20 to-rose-500/20 hover:from-pink-500/30 hover:to-rose-500/30 border border-pink-400/30 hover:border-pink-400/50 backdrop-blur-sm px-4 py-2.5 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-pink-500/25">
+                        <i class="fas fa-heart text-pink-400 group-hover:text-pink-300 transition-colors duration-200"></i>
+                        <span class="text-white/90 group-hover:text-white font-medium">收藏</span>
+                        <!-- 悬浮提示 -->
+                        <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 translate-y-full opacity-0 group-hover:opacity-100 transition-all duration-200 delay-300">
+                            <div class="bg-black/90 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                                我的收藏
+                                <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-black/90 rotate-45"></div>
+                            </div>
+                        </div>
                     </a>
-                    <a href="/admin/" class="text-gray-300 hover:text-white transition-colors">
-                        <i class="fas fa-cog"></i>
-                    </a>
-                    {% if user.is_authenticated %}
-                    <a href="{% url 'account_logout' %}" class="text-gray-300 hover:text-white transition-colors">
-                        <i class="fas fa-right-from-bracket"></i>
-                    </a>
-                    {% else %}
-                    <a href="{% url 'account_login' %}" class="text-gray-300 hover:text-white transition-colors">
-                        <i class="fas fa-user"></i>
-                    </a>
-                    {% endif %}
+                    
+                    <!-- 用户资料按钮 -->
+                    <div class="relative group">
+                        <a href="/profile/" class="flex items-center space-x-3 bg-gradient-to-r from-blue-500/20 to-purple-500/20 hover:from-blue-500/30 hover:to-purple-500/30 border border-blue-400/30 hover:border-blue-400/50 backdrop-blur-sm px-4 py-2.5 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25">
+                            <div class="w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-inner">
+                                {{ user.username|first|upper }}
+                            </div>
+                            <span class="text-white/90 group-hover:text-white font-medium">{{ user.username }}</span>
+                        </a>
+                        <!-- 用户菜单下拉 -->
+                        <div class="absolute right-0 top-full mt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 delay-100 z-50">
+                            <div class="bg-black/90 backdrop-blur-xl rounded-xl border border-white/10 shadow-2xl min-w-[180px] py-2">
+                                <a href="/profile/" class="flex items-center space-x-3 px-4 py-3 hover:bg-white/10 transition-colors duration-200">
+                                    <i class="fas fa-user text-blue-400 w-4"></i>
+                                    <span class="text-white">个人资料</span>
+                                </a>
+                                <a href="/settings/" class="flex items-center space-x-3 px-4 py-3 hover:bg-white/10 transition-colors duration-200">
+                                    <i class="fas fa-cog text-gray-400 w-4"></i>
+                                    <span class="text-white">设置</span>
+                                </a>
+                                <div class="border-t border-white/10 mt-2 pt-2">
+                                    <a href="{% url 'account_logout' %}" class="flex items-center space-x-3 px-4 py-3 hover:bg-red-500/20 transition-colors duration-200 text-red-400 hover:text-red-300">
+                                        <i class="fas fa-right-from-bracket w-4"></i>
+                                        <span>登出</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 快捷操作按钮组 -->
+                    <div class="flex items-center space-x-2 border-l border-white/20 pl-3">
+                        <!-- 搜索按钮 -->
+                        <button class="nav-button group w-10 h-10 glass hover:scale-110 rounded-xl flex items-center justify-center transition-all duration-200" title="搜索">
+                            <i class="fas fa-search text-gray-400 group-hover:text-white text-sm relative z-10"></i>
+                        </button>
+                        <!-- 通知按钮 -->
+                        <button class="nav-button group relative w-10 h-10 glass hover:scale-110 rounded-xl flex items-center justify-center transition-all duration-200" title="通知">
+                            <i class="fas fa-bell text-gray-400 group-hover:text-white text-sm relative z-10"></i>
+                            <!-- 通知小红点 -->
+                            <span class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-black/90 notification-badge z-20"></span>
+                        </button>
+                    </div>
                 </div>
             </div>
+            {% else %}
+            <!-- Simple Navigation - Unauthenticated -->
+            <div class="flex justify-between items-center h-16 px-4">
+                <a href="/" class="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                    SuiTune
+                </a>
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'account_login' %}" class="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 px-6 py-2 rounded-full text-white font-medium transition-all duration-200 transform hover:scale-105">
+                        <i class="fas fa-sign-in-alt mr-2"></i>登录
+                    </a>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </nav>
     
     <!-- Main Content -->
-    <main id="spa-content" class="container mx-auto px-4 py-8 pb-32">
+    <main id="spa-content" class="container mx-auto px-4 py-8 {% if user.is_authenticated %}pb-32{% else %}pb-8{% endif %}">
         {% block content %}{% endblock %}
     </main>
 
     <!-- Global Music Player -->
+    {% if user.is_authenticated %}
     <div id="global-player" class="hidden fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur-xl border-t border-white/10 shadow-2xl z-50">
         <!-- Collapsed Player -->
         <div id="player-collapsed" class="flex items-center justify-between p-3 sm:p-4">
@@ -195,6 +396,12 @@
 
     <!-- Global Audio Element -->
     <audio id="global-audio" preload="metadata"></audio>
+    {% endif %}
+
+    <!-- App.js Script - Load for authenticated users -->
+    {% if user.is_authenticated %}
+    <script src="{% static 'js/app.js' %}"></script>
+    {% endif %}
 
     <!-- Global Music Manager Script -->
     <script>
@@ -825,9 +1032,12 @@
         
         setupRoutes() {
             // 定义路由映射
-            this.routes.set('/', '/api/page/home');
+            this.routes.set('/home/', '/api/page/home');
+            this.routes.set('/home', '/api/page/home');
             this.routes.set('/favorites/', '/api/page/favorites');
             this.routes.set('/favorites', '/api/page/favorites');
+            this.routes.set('/profile/', '/api/page/profile');
+            this.routes.set('/profile', '/api/page/profile');
         }
         
         setupEventListeners() {
@@ -853,6 +1063,10 @@
         
         isInternalLink(href) {
             if (!href || href.startsWith('#') || href.startsWith('http') || href.startsWith('mailto:')) {
+                return false;
+            }
+            // 排除认证相关的页面，让它们使用传统的页面跳转
+            if (href.startsWith('/accounts/') || href.startsWith('/admin/')) {
                 return false;
             }
             return true;
@@ -987,9 +1201,12 @@
         
         getPageName(path) {
             const names = {
-                '/': '首页',
+                '/home/': '首页',
+                '/home': '首页',
                 '/favorites/': '我的收藏',
-                '/favorites': '我的收藏'
+                '/favorites': '我的收藏',
+                '/profile/': '个人资料',
+                '/profile': '个人资料'
             };
             return names[path] || '页面';
         }
