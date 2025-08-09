@@ -1,16 +1,16 @@
 {% extends "sui/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/animations.css' %}">
+{% endblock %}
 
 {% block content %}
-<button id="play" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-8 rounded-full text-xl">随便播</button>
-<script>
-const btn = document.getElementById('play');
-btn.addEventListener('click', () => {
-    fetch('/api/next')
-        .then(resp => resp.json())
-        .then(data => {
-            const audio = new Audio(data.stream_url);
-            audio.play();
-        });
-});
-</script>
+<div class="flex flex-col items-center justify-center min-h-[80vh] max-w-sm mx-auto px-4" data-page="home">
+    {% include "sui/components/music_card.html" %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/app.js' %}"></script>
 {% endblock %}
