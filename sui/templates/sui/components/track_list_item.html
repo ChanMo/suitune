@@ -1,0 +1,59 @@
+<!-- 歌曲列表项组件 -->
+<div class="group bg-black/30 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-white/10 hover:bg-black/40 transition-all duration-300 hover:scale-[1.02] track-item cursor-pointer" 
+     data-component="track-item" 
+     data-track-id="{{ track.id }}" 
+     data-index="{{ forloop.counter0 }}">
+    
+    <div class="flex items-center space-x-4">
+        <!-- Album Cover -->
+        <div class="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center shadow-lg">
+            {% if track.artwork_url %}
+                <img src="{{ track.artwork_url }}" 
+                     alt="{{ track.album|default:'专辑封面' }}" 
+                     class="w-full h-full object-cover" 
+                     onerror="this.parentElement.innerHTML='<i class=\'fas fa-music text-white text-xl\'></i>'"/>
+            {% else %}
+                <i class="fas fa-music text-white text-xl"></i>
+            {% endif %}
+        </div>
+        
+        <!-- Track Info -->
+        <div class="flex-grow min-w-0">
+            <h3 class="text-white text-lg font-semibold truncate">{{ track.title }}</h3>
+            <p class="text-gray-300 truncate">{{ track.artist }}</p>
+            <div class="flex items-center space-x-4 mt-2">
+                <span class="text-gray-400 text-sm">{{ track.album }}</span>
+                <span class="text-gray-500 text-xs">•</span>
+                <span class="text-gray-400 text-sm flex items-center">
+                    {% if track.channel == 'music' %}
+                        <i class="fas fa-music mr-1"></i>音乐
+                    {% elif track.channel == 'talk' %}
+                        <i class="fas fa-microphone mr-1"></i>相声
+                    {% elif track.channel == 'tv' %}
+                        <i class="fas fa-tv mr-1"></i>TV音频
+                    {% elif track.channel == 'ambient' %}
+                        <i class="fas fa-leaf mr-1"></i>环境音
+                    {% else %}
+                        <i class="fas fa-music mr-1"></i>音乐
+                    {% endif %}
+                </span>
+                <span class="text-gray-500 text-xs">•</span>
+                <span class="text-gray-400 text-sm">{{ track.duration|default:0|floatformat:0|time:"i:s" }}</span>
+            </div>
+        </div>
+        
+        <!-- Actions -->
+        <div class="flex items-center space-x-2" data-no-click="true">
+            <button class="unlike-btn w-10 h-10 bg-pink-500/20 hover:bg-pink-500/30 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110" 
+                    data-action="unlike" 
+                    data-track-id="{{ track.id }}">
+                <i class="fas fa-heart text-pink-400"></i>
+            </button>
+            <button class="ban-btn w-10 h-10 bg-red-500/20 hover:bg-red-500/30 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110" 
+                    data-action="ban" 
+                    data-track-id="{{ track.id }}">
+                <i class="fas fa-ban text-red-400"></i>
+            </button>
+        </div>
+    </div>
+</div>
