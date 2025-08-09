@@ -9,11 +9,13 @@ class Track(models.Model):
         ('ambient', 'Ambient'),
     ]
 
-    path = models.CharField(max_length=255, unique=True)
+    file_path = models.CharField(max_length=255, unique=True)
     title = models.CharField(max_length=255)
     artist = models.CharField(max_length=255, blank=True)
     album = models.CharField(max_length=255, blank=True)
     duration = models.PositiveIntegerField(help_text='Duration in seconds')
+    file_size = models.PositiveIntegerField(default=0, null=True, blank=True)
+    last_modified = models.DateTimeField(auto_now=True, null=True, blank=True)
     channel = models.CharField(max_length=16, choices=CHANNEL_CHOICES)
     artwork_path = models.CharField(max_length=255, blank=True)
     added_at = models.DateTimeField(auto_now_add=True)

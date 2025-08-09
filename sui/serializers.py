@@ -7,5 +7,5 @@ class TrackSerializer(serializers.ModelSerializer):
         model = Track
         fields = [
             'id', 'title', 'artist', 'album', 'duration',
-            'channel', 'artwork_path', 'path'
+            'channel', 'artwork_path', 'file_path'
         ]
