@@ -1,0 +1,14 @@
+[project]
+name = "suitune-backend"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "Django>=5.0,<6.0",
+    "djangorestframework>=3.15.0",
+    "django-environ>=0.11.2",
+    "django-cors-headers>=4.3.1",
+    "mutagen>=1.47.0",
+]
+
+[tool.ruff]
+line-length = 88

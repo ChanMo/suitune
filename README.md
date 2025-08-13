@@ -4,6 +4,34 @@
 
 SuiTune 是一个面向“被动听”的个人电台式音频站点：只需点一下，系统就按你的喜好与习惯，持续播下去。主打本地私有曲库，轻前端、稳后端。
 
+## Monorepo 结构（重构中）
+
+```
+suitune/
+├─ backend/      # Django API 服务
+├─ frontend/     # React + Vite 前端
+├─ shared/       # 前后端共用的 schema 与资源
+├─ ops/          # 部署与基础设施配置
+├─ scripts/      # 开发与运维脚本
+└─ .github/      # CI 工作流
+```
+
+## Development
+
+```bash
+cd backend
+python manage.py migrate
+python manage.py runserver
+```
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+本仓库遵循《REFACTOR.md》中所述的设计：播放器单例、路由不卸载、跨标签协作。
+
 ---
 
 ## 0. TL;DR
@@ -157,7 +185,7 @@ SuiTune 是一个面向“被动听”的个人电台式音频站点：只需点
 2. 冷却：排除近 N 首播放的曲目；同艺人设置冷却（避免连播）。
 3. 打分：
    - 喜欢 +1；最近完成 +0.5；最近跳过 −0.7
-   - 多样性惩罚：同艺人出现次数 * −0.2
+   - 多样性惩罚：同艺人出现次数 \* −0.2
    - 新鲜度：`exp(-days_since_added/30)`
 4. 采样：按分数加权随机取 1 首；队列低于阈值时自动补位。
 5. 探索比例：默认“熟悉 70% + 新鲜 30%”（可配）。
@@ -239,4 +267,3 @@ SuiTune 是一个面向“被动听”的个人电台式音频站点：只需点
 ---
 
 想法保守一点：先把 Phase 1 跑通（能稳定“闭眼播一晚”），再加花。被动听的价值在“稳+懂你”，而不是在堆功能。
-

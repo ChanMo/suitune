@@ -1,0 +1,1 @@
+"""View stubs for radio."""
