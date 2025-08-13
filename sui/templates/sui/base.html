@@ -415,6 +415,7 @@
             this.playerContainer = document.getElementById('global-player');
             this.expandedView = document.getElementById('player-expanded');
             this.collapsedView = document.getElementById('player-collapsed');
+            this.syncInterval = null;
             
             this.initializeElements();
             this.setupEventListeners();
@@ -443,12 +444,20 @@
         }
         
         setupEventListeners() {
-            // Audio events
+            // Audio events - 基本播放事件
             this.audio.addEventListener('play', () => this.onPlay());
             this.audio.addEventListener('pause', () => this.onPause());
             this.audio.addEventListener('timeupdate', () => this.onTimeUpdate());
             this.audio.addEventListener('loadedmetadata', () => this.onLoadedMetadata());
             this.audio.addEventListener('ended', () => this.onEnded());
+            
+            // Audio events - 状态异常事件
+            this.audio.addEventListener('stalled', () => this.onAudioStalled());
+            this.audio.addEventListener('suspend', () => this.onAudioSuspended());
+            this.audio.addEventListener('abort', () => this.onAudioAborted());
+            this.audio.addEventListener('error', () => this.onAudioError());
+            this.audio.addEventListener('waiting', () => this.onAudioWaiting());
+            this.audio.addEventListener('canplay', () => this.onAudioCanPlay());
             
             // Control events
             this.playPauseBtn.addEventListener('click', () => this.togglePlayPause());
@@ -464,18 +473,14 @@
             // Storage events for cross-page synchronization
             window.addEventListener('storage', (e) => this.onStorageChange(e));
             
-            // Page visibility change
+            // Page visibility change - 增强处理
             document.addEventListener('visibilitychange', () => this.onVisibilityChange());
             
             // Save state before page unload
             window.addEventListener('beforeunload', () => this.saveState());
             
-            // Save state when page becomes hidden
-            document.addEventListener('visibilitychange', () => {
-                if (document.hidden) {
-                    this.saveState();
-                }
-            });
+            // 启动状态同步检查器
+            this.startStateSyncChecker();
         }
         
         // State management
@@ -554,7 +559,14 @@
         
         onVisibilityChange() {
             if (!document.hidden) {
-                this.loadState();
+                // 页面变为可见时，增强状态检查和同步
+                setTimeout(() => {
+                    this.syncPlaybackState();
+                    this.loadState();
+                }, 100); // 延迟100ms确保页面完全激活
+            } else {
+                // 页面变为不可见时保存状态
+                this.saveState();
             }
         }
         
@@ -835,6 +847,77 @@
         
         async onEnded() {
             await this.loadNext();
+        }
+        
+        // 新增音频状态处理方法
+        onAudioStalled() {
+            console.log('Audio stalled - 音频停滞');
+            this.syncPlaybackState();
+        }
+        
+        onAudioSuspended() {
+            console.log('Audio suspended - 音频暂停');
+            this.syncPlaybackState();
+        }
+        
+        onAudioAborted() {
+            console.log('Audio aborted - 音频中止');
+            this.syncPlaybackState();
+        }
+        
+        onAudioError() {
+            console.error('Audio error - 音频错误');
+            this.isPlaying = false;
+            this.updatePlayPauseButton(false);
+            this.broadcastStateChange();
+        }
+        
+        onAudioWaiting() {
+            console.log('Audio waiting - 音频等待');
+            // 等待状态不需要特别处理，保持当前状态
+        }
+        
+        onAudioCanPlay() {
+            console.log('Audio can play - 音频可播放');
+            // 确保状态一致性
+            this.syncPlaybackState();
+        }
+        
+        // 状态同步方法 - 核心修复方法
+        syncPlaybackState() {
+            if (!this.audio || !this.currentTrack) return;
+            
+            // 检查实际音频播放状态
+            const actuallyPlaying = !this.audio.paused && !this.audio.ended && this.audio.currentTime > 0 && this.audio.readyState > 2;
+            
+            // 如果状态不一致，进行修复
+            if (this.isPlaying !== actuallyPlaying) {
+                console.log(`Status sync: UI shows ${this.isPlaying ? 'playing' : 'paused'}, but audio is ${actuallyPlaying ? 'playing' : 'paused'}. Fixing...`);
+                
+                this.isPlaying = actuallyPlaying;
+                this.updatePlayPauseButton(this.isPlaying);
+                this.updateMediaSession();
+                this.broadcastStateChange();
+                this.saveState();
+            }
+        }
+        
+        // 定期状态检查器
+        startStateSyncChecker() {
+            // 每5秒检查一次状态一致性
+            this.syncInterval = setInterval(() => {
+                if (this.currentTrack) {
+                    this.syncPlaybackState();
+                }
+            }, 5000);
+        }
+        
+        // 停止状态检查器（在必要时调用）
+        stopStateSyncChecker() {
+            if (this.syncInterval) {
+                clearInterval(this.syncInterval);
+                this.syncInterval = null;
+            }
         }
         
         // Public API for pages to interact with player
