@@ -23,9 +23,10 @@ from sui.models import Track
 logger = logging.getLogger(__name__)
 
 class MusicEventHandler(FileSystemEventHandler):
-    def __init__(self, command=None):
+    def __init__(self, command=None, channel=None):
         super().__init__()
         self.command = command
+        self.channel = channel  # 指定的频道类型，如果为None则自动检测
         self.supported_extensions = (
             '.mp3', '.flac', '.ogg', '.m4a', '.mp4',
             '.wav', '.opus', '.aac'
@@ -244,15 +245,19 @@ class MusicEventHandler(FileSystemEventHandler):
                         )
                     )
 
-            # Determine channel based on file path or name
-            channel = 'music'  # Default channel
-            file_lower = event_path.lower()
-            if 'talk' in file_lower or '相声' in file_lower:
-                channel = 'talk'
-            elif 'tv' in file_lower or '电视' in file_lower:
-                channel = 'tv'
-            elif 'ambient' in file_lower or '环境' in file_lower:
-                channel = 'ambient'
+            # Determine channel: use specified channel or auto-detect
+            if self.channel:
+                channel = self.channel
+            else:
+                # Auto-detect channel based on file path or name
+                channel = 'music'  # Default channel
+                file_lower = event_path.lower()
+                if 'talk' in file_lower or '相声' in file_lower:
+                    channel = 'talk'
+                elif 'tv' in file_lower or '电视' in file_lower:
+                    channel = 'tv'
+                elif 'ambient' in file_lower or '环境' in file_lower:
+                    channel = 'ambient'
             
             # 创建或更新数据库记录（即使元数据读取失败也要处理）
             music, created = Track.objects.update_or_create(
@@ -327,11 +332,15 @@ class Command(BaseCommand):
         parser.add_argument('paths', nargs='+', type=str, help='One or more paths to watch.')
         parser.add_argument('--scan-existing', action='store_true', 
                            help='Scan existing files in directories before starting to watch.')
+        parser.add_argument('--channel', type=str, 
+                           choices=['music', 'talk', 'tv', 'ambient'],
+                           help='Specify the channel type for all audio files in the given directories. '
+                                'If not specified, channel will be auto-detected based on file path/name.')
 
-    def scan_existing_files(self, paths):
+    def scan_existing_files(self, paths, channel=None):
         """扫描现有的音频文件并添加到数据库"""
         self.stdout.write(self.style.SUCCESS("Scanning existing files..."))
-        event_handler = MusicEventHandler(command=self)
+        event_handler = MusicEventHandler(command=self, channel=channel)
         
         total_files = 0
         for path in paths:
@@ -348,11 +357,12 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         paths = options['paths']
         scan_existing = options['scan_existing']
+        channel = options['channel']
 
         if not paths:
             raise CommandError('Please provide at least one path to watch.')
 
-        event_handler = MusicEventHandler(command=self)
+        event_handler = MusicEventHandler(command=self, channel=channel)
         observer = Observer()
         
         valid_paths = []
@@ -367,8 +377,13 @@ class Command(BaseCommand):
         if not valid_paths:
             raise CommandError('No valid directories to watch were provided.')
 
+        if channel:
+            self.stdout.write(self.style.SUCCESS(f"Using specified channel: {channel}"))
+        else:
+            self.stdout.write(self.style.SUCCESS("Channel will be auto-detected based on file path/name"))
+
         if scan_existing:
-            self.scan_existing_files(valid_paths)
+            self.scan_existing_files(valid_paths, channel)
 
         observer.start()
         self.stdout.write(self.style.SUCCESS("Music file watcher started. Press Ctrl+C to stop."))
