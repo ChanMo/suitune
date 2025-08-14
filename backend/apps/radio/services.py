@@ -5,6 +5,8 @@ from collections import defaultdict, deque
 from typing import Deque, Dict, Optional, Tuple, TYPE_CHECKING
 
 from django.apps import apps
+from .models import Channel
+
 
 if TYPE_CHECKING:  # pragma: no cover - for type checkers only
     from apps.library.models import Track
@@ -47,3 +49,11 @@ class RadioService:
     def sign_url(url: str) -> str:
         """Return a signed URL (placeholder)."""
         return url
+
+
+def apply_channel_rating(channel: Channel, rating: int) -> float:
+    """Return rating weighted according to the channel configuration."""
+    weight = getattr(channel, "rating_weight", None)
+    if not weight:
+        return float(rating)
+    return weight.apply(rating)
