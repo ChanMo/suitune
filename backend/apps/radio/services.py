@@ -29,8 +29,8 @@ class RadioService:
 
     def _candidates(self, channel: str):
         TrackModel = apps.get_model("library", "Track")
-        cooldown = set(self.cooldowns[channel])
-        return [t for t in TrackModel.objects.all() if t.id not in cooldown]
+        cooldown_ids = list(self.cooldowns[channel])
+        return TrackModel.objects.exclude(id__in=cooldown_ids)
 
     def next_track(self, channel: str) -> Tuple[Optional["Track"], Optional[str]]:
         """Return a recommended track and signed URL."""
