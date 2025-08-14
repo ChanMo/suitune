@@ -33,6 +33,11 @@ def feedback(request):
     channel = request.data.get("channel", "default")
     track_id = request.data.get("track_id")
     liked = request.data.get("liked")
-    if track_id is not None and liked is not None:
+    if track_id is None or liked is None:
+        return Response({"error": "track_id and liked are required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
         radio_service.submit_feedback(channel, int(track_id), bool(liked))
-    return Response({"status": "received"}, status=status.HTTP_201_CREATED)
+        return Response({"status": "received"}, status=status.HTTP_201_CREATED)
+    except (ValueError, TypeError):
+        return Response({"error": "Invalid track_id or liked format"}, status=status.HTTP_400_BAD_REQUEST)
