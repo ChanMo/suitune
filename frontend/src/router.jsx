@@ -1,11 +1,11 @@
 // @ts-check
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Home from "./app/home";
-import Favorites from "./app/favorites";
-import Search from "./app/search";
-import Settings from "./app/settings";
-import Now from "./app/now";
+import Home from "./app/home/index.jsx";
+import Favorites from "./app/favorites/index.jsx";
+import Search from "./app/search/index.jsx";
+import Settings from "./app/settings/index.jsx";
+import Now from "./app/now/index.jsx";
 
 export default function Router() {
   return (
